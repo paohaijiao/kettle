@@ -134,12 +134,16 @@ public class KettleServiceImpl implements KettleService {
             insertUpdateMeta.setKeyStream2(new String[]{""});//一定要加上
             insertUpdateMeta.setKeyCondition(new String[]{"="});
 
-            //String select_sql = "SELECT ID,IP,CREATEDATETIME,LOGINNAME,TYPE FROM "+bjdt_tablename;
-            //设置要更新的字段
-            Arrays.stream(job.getUpdateClause().split(",")).forEach(e->System.out.print(e));
-           // System.out.print();
-            String[] updatelookup ={"ID", "IP", "CREATEDATETIME", "LOGINNAME", "TYPE"};
-            String[] updateStream = {"ID", "IP", "CREATEDATETIME", "LOGINNAME", "TYPE"};
+
+            String[] aaray=job.getUpdateClause().split(",");
+            String[] updatelookup= new String[aaray.length];
+            for(int i=0;i<aaray.length;i++){
+                String str=aaray[i];
+                updatelookup[i]=str;
+            }
+
+            //String[] updatelookup ={"ID", "IP", "CREATEDATETIME", "LOGINNAME", "TYPE"};
+            String[] updateStream = updatelookup;
            Boolean[] updateOrNot = {false, true, true, true, true};
             insertUpdateMeta.setUpdateLookup(updatelookup);
             insertUpdateMeta.setUpdateStream(updateStream);
