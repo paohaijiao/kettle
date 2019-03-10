@@ -100,10 +100,10 @@ public class KettleServiceImpl implements KettleService {
             DatabaseMeta database_bjdt = transMeta.findDatabase(job.getTableFrom());
             tableInput.setDatabaseMeta(database_bjdt);
             if(StringUtils.isEmpty(job.getSelectClause())){
-                String select_sql = "SELECT ID,IP,CREATEDATETIME,LOGINNAME,TYPE FROM " + job.getTableFrom();
+                String select_sql = "SELECT "+job.getUpdateClause()+" FROM " + job.getTableFrom();
                 tableInput.setSQL(select_sql);
             }else{
-                String select_sql = "SELECT ID,IP,CREATEDATETIME,LOGINNAME,TYPE FROM " + job.getTableFrom()+ " Where "+job.getSelectClause();
+                String select_sql = "SELECT "+job.getUpdateClause()+" FROM " + job.getTableFrom()+ " Where "+job.getSelectClause();
                 tableInput.setSQL(select_sql);
             }
 
@@ -133,18 +133,17 @@ public class KettleServiceImpl implements KettleService {
             insertUpdateMeta.setKeyStream(new String[]{"ID"});
             insertUpdateMeta.setKeyStream2(new String[]{""});//一定要加上
             insertUpdateMeta.setKeyCondition(new String[]{"="});
-
-
             String[] aaray=job.getUpdateClause().split(",");
             String[] updatelookup= new String[aaray.length];
             for(int i=0;i<aaray.length;i++){
                 String str=aaray[i];
                 updatelookup[i]=str;
             }
-
-            //String[] updatelookup ={"ID", "IP", "CREATEDATETIME", "LOGINNAME", "TYPE"};
             String[] updateStream = updatelookup;
-           Boolean[] updateOrNot = {false, true, true, true, true};
+            Boolean[] updateOrNot= new Boolean[aaray.length];
+            for(int j=0;j<aaray.length;j++ ){
+                updateOrNot[j]=true;
+            }
             insertUpdateMeta.setUpdateLookup(updatelookup);
             insertUpdateMeta.setUpdateStream(updateStream);
             insertUpdateMeta.setUpdate(updateOrNot);
