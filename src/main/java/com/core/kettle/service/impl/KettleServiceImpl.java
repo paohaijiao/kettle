@@ -129,8 +129,7 @@ public class KettleServiceImpl implements KettleService {
             insertUpdateMeta.setTableName(job.getTableTo());
 
             //设置用来查询的关键字
-            insertUpdateMeta.setKeyLookup(new String[]{"ID"});
-            insertUpdateMeta.setKeyStream(new String[]{"ID"});
+
             insertUpdateMeta.setKeyStream2(new String[]{""});//一定要加上
             insertUpdateMeta.setKeyCondition(new String[]{"="});
             String[] aaray=job.getUpdateClause().split(",");
@@ -139,6 +138,8 @@ public class KettleServiceImpl implements KettleService {
                 String str=aaray[i];
                 updatelookup[i]=str;
             }
+            insertUpdateMeta.setKeyLookup(new String[]{aaray[0]});
+            insertUpdateMeta.setKeyStream(new String[]{aaray[0]});
             String[] updateStream = updatelookup;
             Boolean[] updateOrNot= new Boolean[aaray.length];
             for(int j=0;j<aaray.length;j++ ){
