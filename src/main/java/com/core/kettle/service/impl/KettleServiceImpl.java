@@ -44,54 +44,11 @@ public class KettleServiceImpl implements KettleService {
             KettleEnvironment.init();
 
             TransMeta transMeta = new TransMeta();
-            //设置转化的名称
             transMeta.setName(job.getJobName());
-
-            //添加转换的数据库连接
-            DatabaseMeta databaseMeta= new DatabaseMeta();
-            databaseMeta.setDBName(dbfrom.getDb());
-            databaseMeta.setHostname(dbfrom.getHost());
-            databaseMeta.setDBPort(dbfrom.getPort());
-            databaseMeta.setUsername(dbfrom.getUsername());
-            databaseMeta.setPassword(dbfrom.getPassword());
-            databaseMeta.setName("from_job");
-            databaseMeta.setDatabaseType(dbfrom.getType());
-            transMeta.addDatabase(databaseMeta);
-            DatabaseMeta databaseMeta1= new DatabaseMeta();
-            databaseMeta1.setDBName(dbTo.getDb());
-            databaseMeta1.setHostname(dbTo.getHost());
-            databaseMeta1.setDBPort(dbTo.getPort());
-            databaseMeta1.setUsername(dbTo.getUsername());
-            databaseMeta1.setPassword(dbTo.getPassword());
-            databaseMeta1.setName("to_job");
-            databaseMeta1.setDatabaseType(dbTo.getType());
-            transMeta.addDatabase(databaseMeta1);
-            //日志数据库
-            DatabaseMeta logMeta1= new DatabaseMeta();
-            logMeta1.setDBName(dbTo.getDb());
-            logMeta1.setHostname(dbTo.getHost());
-            logMeta1.setDBPort(dbTo.getPort());
-            logMeta1.setUsername(dbTo.getUsername());
-            logMeta1.setPassword(dbTo.getPassword());
-            logMeta1.setName("log");
-            logMeta1.setDatabaseType(dbTo.getType());
-            transMeta.addDatabase(logMeta1);
-            VariableSpace space = new Variables();
-            //将step日志数据库配置名加入到变量集中
-            space.setVariable("kettle_log", "log");
-            space.initializeVariablesFrom(null);
-            StepLogTable stepLogTable = StepLogTable.getDefault(space, transMeta);
-            //StepLogTable使用的数据库连接名（上面配置的变量名）。
-            stepLogTable.setConnectionName("log");
-            //设置Step日志的表名
-         //   stepLogTable.setTableName(kettle_log);
-            //设置TransMeta的StepLogTable
-            transMeta.setStepLogTable(stepLogTable);
-
+             //初始化数据库连接信息
+            transMeta= getTransMeta(transMeta,dbfrom,dbTo);
             //registry是给每个步骤生成一个标识Id用
             PluginRegistry registry = PluginRegistry.getInstance();
-
-            //******************************************************************
 
             //第一个表输入步骤(TableInputMeta)
             TableInputMeta tableInput = new TableInputMeta();
@@ -108,8 +65,6 @@ public class KettleServiceImpl implements KettleService {
                 String select_sql = "SELECT "+job.getUpdateClause()+" FROM " + job.getTableFrom()+ " Where "+job.getSelectClause();
                 tableInput.setSQL(select_sql);
             }
-
-
 
             //添加TableInputMeta到转换中
             StepMeta tableInputMetaStep = new StepMeta("INPUTTABLE_" + job.getTableFrom(), tableInput);
@@ -130,9 +85,7 @@ public class KettleServiceImpl implements KettleService {
             //设置操作的表
             insertUpdateMeta.setTableName(job.getTableTo());//+job.getTableTo()
             insertUpdateMeta.setSchemaName("financial");
-
             //设置用来查询的关键字
-
             insertUpdateMeta.setKeyStream2(new String[]{""});//一定要加上
             insertUpdateMeta.setKeyCondition(new String[]{"="});
             String[] aaray=job.getUpdateClause().split(",");
@@ -169,8 +122,9 @@ public class KettleServiceImpl implements KettleService {
 
             trans.execute(null); // You can pass arguments instead of null.
             trans.waitUntilFinished();
-            job.setStatus("Y");
+            job.setStatus("N");
             if (trans.getErrors() > 0) {
+                job.setStatus("Y ");
                 throw new RuntimeException("There were errors during transformation execution.");
             }
             sysConfigJobResitory.save(job);
@@ -182,12 +136,47 @@ public class KettleServiceImpl implements KettleService {
 
         return false;
     }
-    public static void main(String[] args){
-        String str="ID, IP, CREATEDATETIME, LOGINNAME, TYPE";
-        String[] arra=str.split(",");
-        System.out.print(arra);
-        String[] arra1= {"ID", "IP", "CREATEDATETIME", "LOGINNAME", "TYPE"};
-        System.out.print(arra1);
+    public static TransMeta getTransMeta(    TransMeta transMeta,SysDbConnection dbfrom,SysDbConnection dbTo){
+        DatabaseMeta databaseMeta= new DatabaseMeta();
+        databaseMeta.setDBName(dbfrom.getDb());
+        databaseMeta.setHostname(dbfrom.getHost());
+        databaseMeta.setDBPort(dbfrom.getPort());
+        databaseMeta.setUsername(dbfrom.getUsername());
+        databaseMeta.setPassword(dbfrom.getPassword());
+        databaseMeta.setName("from_job");
+        databaseMeta.setDatabaseType(dbfrom.getType());
+        transMeta.addDatabase(databaseMeta);
+        DatabaseMeta databaseMeta1= new DatabaseMeta();
+        databaseMeta1.setDBName(dbTo.getDb());
+        databaseMeta1.setHostname(dbTo.getHost());
+        databaseMeta1.setDBPort(dbTo.getPort());
+        databaseMeta1.setUsername(dbTo.getUsername());
+        databaseMeta1.setPassword(dbTo.getPassword());
+        databaseMeta1.setName("to_job");
+        databaseMeta1.setDatabaseType(dbTo.getType());
+        transMeta.addDatabase(databaseMeta1);
+        //日志数据库
+        DatabaseMeta logMeta1= new DatabaseMeta();
+        logMeta1.setDBName(dbTo.getDb());
+        logMeta1.setHostname(dbTo.getHost());
+        logMeta1.setDBPort(dbTo.getPort());
+        logMeta1.setUsername(dbTo.getUsername());
+        logMeta1.setPassword(dbTo.getPassword());
+        logMeta1.setName("log");
+        logMeta1.setDatabaseType(dbTo.getType());
+        transMeta.addDatabase(logMeta1);
+        VariableSpace space = new Variables();
+        //将step日志数据库配置名加入到变量集中
+        space.setVariable("kettle_log", "log");
+        space.initializeVariablesFrom(null);
+        StepLogTable stepLogTable = StepLogTable.getDefault(space, transMeta);
+        //StepLogTable使用的数据库连接名（上面配置的变量名）。
+        stepLogTable.setConnectionName("log");
+        //设置Step日志的表名
+        //   stepLogTable.setTableName(kettle_log);
+        //设置TransMeta的StepLogTable
+        transMeta.setStepLogTable(stepLogTable);
+        return transMeta;
     }
 
 }

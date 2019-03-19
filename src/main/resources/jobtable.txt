@@ -1,0 +1,37 @@
+CREATE TABLE `t_lzfx_data_log` (  
+  `ID` bigint(20) NOT NULL AUTO_INCREMENT,  
+  `ID_BATCH` int(11) DEFAULT '0',  
+  `CHANNEL_ID` varchar(255) DEFAULT NULL,  
+  `TRANSNAME` varchar(255) DEFAULT NULL,  
+  `STEPNAME` varchar(200) DEFAULT NULL,  
+  `STEP_COPY` int(11) DEFAULT NULL,  
+  `LINES_READ` int(11) DEFAULT NULL,  
+  `LINES_WRITTEN` int(11) DEFAULT NULL,  
+  `LINES_UPDATED` int(11) DEFAULT NULL,  
+  `LINES_INPUT` int(11) DEFAULT NULL,  
+  `LINES_OUTPUT` int(11) DEFAULT NULL,  
+  `LINES_REJECTED` int(11) DEFAULT NULL,  
+  `ERRORS` int(11) DEFAULT NULL,  
+  `LOG_FIELD` blob,  
+  `LOG_DATE` datetime DEFAULT NULL,  
+  PRIMARY KEY (`ID`)  
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;  
+
+CREATE TABLE `syonline` (  
+  `ID` varchar(36) NOT NULL,  
+  `CREATEDATETIME` datetime DEFAULT NULL,  
+  `IP` varchar(100) DEFAULT NULL,  
+  `LOGINNAME` varchar(100) DEFAULT NULL,  
+  `TYPE` varchar(1) DEFAULT NULL,  
+  PRIMARY KEY (`ID`)  
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;  
+  
+  
+CREATE TABLE `t_lzfx_base_syonline` (  
+  `ID` varchar(36) NOT NULL,  
+  `CREATEDATETIME` datetime DEFAULT NULL,  
+  `IP` varchar(100) DEFAULT NULL,  
+  `LOGINNAME` varchar(100) DEFAULT NULL,  
+  `TYPE` varchar(1) DEFAULT NULL,  
+  PRIMARY KEY (`ID`)  
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
