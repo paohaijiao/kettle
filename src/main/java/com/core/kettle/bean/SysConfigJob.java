@@ -41,6 +41,22 @@ public class SysConfigJob {
     @Column(name="shemaTo")
     private  String shemaTo;
 
+    public String getShemaFrom() {
+        return shemaFrom;
+    }
+
+    public void setShemaFrom(String shemaFrom) {
+        this.shemaFrom = shemaFrom;
+    }
+
+    public String getShemaTo() {
+        return shemaTo;
+    }
+
+    public void setShemaTo(String shemaTo) {
+        this.shemaTo = shemaTo;
+    }
+
     public String getUpdateClause() {
         return updateClause;
     }

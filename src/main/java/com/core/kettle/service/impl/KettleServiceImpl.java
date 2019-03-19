@@ -58,11 +58,11 @@ public class KettleServiceImpl implements KettleService {
             //database_bjdt.setSchemaName("financial");
             tableInput.setDatabaseMeta(database_bjdt);
             if(StringUtils.isEmpty(job.getSelectClause())){
-                String select_sql = "SELECT "+job.getUpdateClause()+" FROM " + "financial."+job.getTableFrom();
+                String select_sql = "SELECT "+job.getUpdateClause()+" FROM " + job.getShemaFrom()+"."+job.getTableFrom();
                 System.out.println(select_sql);
                 tableInput.setSQL(select_sql);
             }else{
-                String select_sql = "SELECT "+job.getUpdateClause()+" FROM " + job.getTableFrom()+ " Where "+job.getSelectClause();
+                String select_sql = "SELECT "+job.getUpdateClause()+" FROM " + job.getShemaFrom()+"."+job.getTableFrom()+ " Where "+job.getSelectClause();
                 tableInput.setSQL(select_sql);
             }
 
