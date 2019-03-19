@@ -57,12 +57,12 @@ public class KettleServiceImpl implements KettleService {
             DatabaseMeta database_bjdt = transMeta.findDatabase("from_job");
             //database_bjdt.setSchemaName("financial");
             tableInput.setDatabaseMeta(database_bjdt);
-            if(StringUtils.isEmpty(job.getSelectClause())){
-                String select_sql = "SELECT "+job.getUpdateClause()+" FROM " + job.getShemaFrom()+"."+job.getTableFrom();
+            if (StringUtils.isEmpty(job.getWhereClause())) {
+                String select_sql = "SELECT " + job.getUpdateClause() + " FROM " + job.getSchemaFrom() + "." + job.getTableFrom();
                 System.out.println(select_sql);
                 tableInput.setSQL(select_sql);
             }else{
-                String select_sql = "SELECT "+job.getUpdateClause()+" FROM " + job.getShemaFrom()+"."+job.getTableFrom()+ " Where "+job.getSelectClause();
+                String select_sql = "SELECT " + job.getUpdateClause() + " FROM " + job.getSchemaFrom() + "." + job.getTableFrom() + " Where " + job.getSelectClause();
                 tableInput.setSQL(select_sql);
             }
 
@@ -72,8 +72,6 @@ public class KettleServiceImpl implements KettleService {
             tableInputMetaStep.setDraw(true);
             tableInputMetaStep.setLocation(100, 100);
             transMeta.addStep(tableInputMetaStep);
-            //******************************************************************
-
             //******************************************************************
             //第二个步骤插入与更新
             InsertUpdateMeta insertUpdateMeta = new InsertUpdateMeta();
@@ -88,7 +86,7 @@ public class KettleServiceImpl implements KettleService {
             //设置用来查询的关键字
             insertUpdateMeta.setKeyStream2(new String[]{""});//一定要加上
             insertUpdateMeta.setKeyCondition(new String[]{"="});
-            String[] aaray=job.getUpdateClause().split(",");
+            String[] aaray = job.getSelectClause().split(",");
             String[] updatelookup= new String[aaray.length];
             for(int i=0;i<aaray.length;i++){
                 String str=aaray[i];
@@ -111,15 +109,9 @@ public class KettleServiceImpl implements KettleService {
             insertUpdateStep.setLocation(250, 100);
             transMeta.addStep(insertUpdateStep);
             //******************************************************************
-
-
-            //******************************************************************
             //添加hop把两个步骤关联起来
             transMeta.addTransHop(new TransHopMeta(tableInputMetaStep, insertUpdateStep));
-
-
             Trans trans = new Trans(transMeta);
-
             trans.execute(null); // You can pass arguments instead of null.
             trans.waitUntilFinished();
             job.setStatus("N");

@@ -3,7 +3,7 @@ package com.core.kettle.service;
 import java.sql.*;
 
 public class Script {
-    static String insert="INSERT INTO `sys_config_job`( `table_from`, `table_to`, `db_to`, `db_from`, `status`, `job_name`, `update_clause`, `select_clause`, `create_by`, `date_create`, `update_by`, `date_update`) VALUES ( '%s', '%s', '1', '8', 'Y', 'JOB', '%s', NULL, 'SYS', '2019-03-11', 'SYS', '2019-03-11');";
+    static String insert = "INSERT INTO `sys_config_job`( `schema_from`,`table_from`, `table_to`, `db_to`, `db_from`, `status`, `job_name`, `update_clause`, `select_clause`, `create_by`, `date_create`, `update_by`, `date_update`,`schema_to`) VALUES ( 'financial','%s', '%s', '8', '9', 'Y', 'JOB', '%s', '%s', 'SYS', '2019-03-11', 'SYS', '2019-03-11','financial');";
     static String url = "jdbc:postgresql://192.168.0.250:5432/ods?currentSchema=financial";
     static String usr = "postgres";
     static String psd = "123456-250";
@@ -28,7 +28,7 @@ public class Script {
                     if(null==column){
                         return;
                     }
-                    String name=String.format(insert, tableName,tableName,column);
+                    String name = String.format(insert, tableName, tableName, column, column);
                     System.out.println(name);
                 }
             }

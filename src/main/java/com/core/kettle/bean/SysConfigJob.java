@@ -36,25 +36,35 @@ public class SysConfigJob {
     private  String updateClause;
     @Column(name="selectClause")
     private  String selectClause;
-    @Column(name="shemaFrom")
-    private  String shemaFrom;
-    @Column(name="shemaTo")
-    private  String shemaTo;
+    @Column(name = "whereClause")
+    private String whereClause;
+    @Column(name = "schemaFrom")
+    private String schemaFrom;
+    @Column(name = "schemaTo")
+    private String schemaTo;
 
-    public String getShemaFrom() {
-        return shemaFrom;
+    public String getWhereClause() {
+        return whereClause;
     }
 
-    public void setShemaFrom(String shemaFrom) {
-        this.shemaFrom = shemaFrom;
+    public void setWhereClause(String whereClause) {
+        this.whereClause = whereClause;
     }
 
-    public String getShemaTo() {
-        return shemaTo;
+    public String getSchemaFrom() {
+        return schemaFrom;
     }
 
-    public void setShemaTo(String shemaTo) {
-        this.shemaTo = shemaTo;
+    public void setSchemaFrom(String schemaFrom) {
+        this.schemaFrom = schemaFrom;
+    }
+
+    public String getSchemaTo() {
+        return schemaTo;
+    }
+
+    public void setSchemaTo(String schemaTo) {
+        this.schemaTo = schemaTo;
     }
 
     public String getUpdateClause() {

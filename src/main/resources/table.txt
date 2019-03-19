@@ -3,19 +3,20 @@ create table sys_config_job(
    id INT NOT NULL AUTO_INCREMENT,
    table_from VARCHAR(100) NOT NULL,
    db_from VARCHAR(100) NOT NULL,
-   shema_from VARCHAR(100) NOT NULL,
+   schema_from VARCHAR(100) NOT NULL,
    table_to VARCHAR(100) NOT NULL,
    db_to VARCHAR(100) NOT NULL,
-   shema_to VARCHAR(100)  NOT NULL,
+   schema_to VARCHAR(100)  NOT NULL,
    status VARCHAR(40) NOT NULL,
    job_name VARCHAR(40) NOT NULL,
-   update_clause VARCHAR(4000) NOT NULL,
-   select_clause VARCHAR(4000) ,
+   update_clause VARCHAR(4000) default NULL,
+   select_clause VARCHAR(4000) NOT NULL ,
+   where_clause VARCHAR(4000) default NULL,
    create_by VARCHAR(40) NOT NULL,
    date_create DATE ,
    update_by VARCHAR(40)  not null,
    date_update DATE,
-PRIMARY key(id)
+   PRIMARY key(id)
 );
 
 create table sys_db_connection(
