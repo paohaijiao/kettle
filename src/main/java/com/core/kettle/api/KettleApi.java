@@ -11,7 +11,22 @@ public class KettleApi {
     private KettleService api;
     @GetMapping
     String init(){
-        api.submitTaskToKettle(1);
+
+        long start=System.currentTimeMillis();
+        for (int i=1;i<=201;i++){
+            try{
+                api.submitTaskToKettle(i);
+            }catch (Exception e){
+                System.out.println("出错了"+e);
+            }
+
+        }
+        long end=System.currentTimeMillis();
+        System.out.println("#################################################");
+        System.out.println("#################################################");
+        System.out.println("#################################################");
+        System.out.println("#################################################");
+        System.out.println(end-start);
         return "haha";
     }
 }

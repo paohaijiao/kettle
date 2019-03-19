@@ -36,6 +36,10 @@ public class SysConfigJob {
     private  String updateClause;
     @Column(name="selectClause")
     private  String selectClause;
+    @Column(name="shemaFrom")
+    private  String shemaFrom;
+    @Column(name="shemaTo")
+    private  String shemaTo;
 
     public String getUpdateClause() {
         return updateClause;

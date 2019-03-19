@@ -8,8 +8,6 @@ import com.core.kettle.service.KettleService;
 import org.pentaho.di.core.KettleEnvironment;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-
-import org.pentaho.di.core.KettleEnvironment;
 import org.pentaho.di.core.database.DatabaseMeta;
 import org.pentaho.di.core.logging.StepLogTable;
 import org.pentaho.di.core.plugins.PluginRegistry;
@@ -24,7 +22,6 @@ import org.pentaho.di.trans.steps.insertupdate.InsertUpdateMeta;
 import org.pentaho.di.trans.steps.tableinput.TableInputMeta;
 import org.springframework.util.StringUtils;
 
-import java.util.Arrays;
 
 @Service
 public class KettleServiceImpl implements KettleService {
@@ -32,13 +29,16 @@ public class KettleServiceImpl implements KettleService {
     private SysConfigJobResitory sysConfigJobResitory;
     @Autowired
     private SysDbConnectionRespository sysDbConnectionRespository;
-    public static String kettle_log = "t_lzfx_data_log";
+  //  public static String kettle_log = "t_lzfx_data_log";
 
 
     @Override
     public boolean submitTaskToKettle(Integer id) {
         try {
             SysConfigJob job=sysConfigJobResitory.findById(id).get();
+            if(job.getStatus().equalsIgnoreCase("N")){
+              return true;
+            }
             SysDbConnection dbfrom=sysDbConnectionRespository.findById(Integer.parseInt(job.getDbFrom())).get();
             SysDbConnection dbTo=sysDbConnectionRespository.findById(Integer.parseInt(job.getDbTo())).get();
             KettleEnvironment.init();
@@ -54,7 +54,7 @@ public class KettleServiceImpl implements KettleService {
             databaseMeta.setDBPort(dbfrom.getPort());
             databaseMeta.setUsername(dbfrom.getUsername());
             databaseMeta.setPassword(dbfrom.getPassword());
-            databaseMeta.setName(job.getTableFrom());
+            databaseMeta.setName("from_job");
             databaseMeta.setDatabaseType(dbfrom.getType());
             transMeta.addDatabase(databaseMeta);
             DatabaseMeta databaseMeta1= new DatabaseMeta();
@@ -63,7 +63,7 @@ public class KettleServiceImpl implements KettleService {
             databaseMeta1.setDBPort(dbTo.getPort());
             databaseMeta1.setUsername(dbTo.getUsername());
             databaseMeta1.setPassword(dbTo.getPassword());
-            databaseMeta1.setName(job.getTableTo());
+            databaseMeta1.setName("to_job");
             databaseMeta1.setDatabaseType(dbTo.getType());
             transMeta.addDatabase(databaseMeta1);
             //日志数据库
@@ -84,7 +84,7 @@ public class KettleServiceImpl implements KettleService {
             //StepLogTable使用的数据库连接名（上面配置的变量名）。
             stepLogTable.setConnectionName("log");
             //设置Step日志的表名
-            stepLogTable.setTableName(kettle_log);
+         //   stepLogTable.setTableName(kettle_log);
             //设置TransMeta的StepLogTable
             transMeta.setStepLogTable(stepLogTable);
 
@@ -97,10 +97,12 @@ public class KettleServiceImpl implements KettleService {
             TableInputMeta tableInput = new TableInputMeta();
             String tableInputPluginId = registry.getPluginId(StepPluginType.class, tableInput);
             //给表输入添加一个DatabaseMeta连接数据库
-            DatabaseMeta database_bjdt = transMeta.findDatabase(job.getTableFrom());
+            DatabaseMeta database_bjdt = transMeta.findDatabase("from_job");
+            //database_bjdt.setSchemaName("financial");
             tableInput.setDatabaseMeta(database_bjdt);
             if(StringUtils.isEmpty(job.getSelectClause())){
-                String select_sql = "SELECT "+job.getUpdateClause()+" FROM " + job.getTableFrom();
+                String select_sql = "SELECT "+job.getUpdateClause()+" FROM " + "financial."+job.getTableFrom();
+                System.out.println(select_sql);
                 tableInput.setSQL(select_sql);
             }else{
                 String select_sql = "SELECT "+job.getUpdateClause()+" FROM " + job.getTableFrom()+ " Where "+job.getSelectClause();
@@ -123,10 +125,11 @@ public class KettleServiceImpl implements KettleService {
             insertUpdateMeta.setCommitSize(10000); //性能设置
             String insertUpdateMetaPluginId = registry.getPluginId(StepPluginType.class, insertUpdateMeta);
             //添加数据库连接
-            DatabaseMeta database_kettle = transMeta.findDatabase(job.getTableTo());
+            DatabaseMeta database_kettle = transMeta.findDatabase("to_job");
             insertUpdateMeta.setDatabaseMeta(database_kettle);
             //设置操作的表
-            insertUpdateMeta.setTableName(job.getTableTo());
+            insertUpdateMeta.setTableName(job.getTableTo());//+job.getTableTo()
+            insertUpdateMeta.setSchemaName("financial");
 
             //设置用来查询的关键字
 
@@ -166,9 +169,11 @@ public class KettleServiceImpl implements KettleService {
 
             trans.execute(null); // You can pass arguments instead of null.
             trans.waitUntilFinished();
+            job.setStatus("Y");
             if (trans.getErrors() > 0) {
                 throw new RuntimeException("There were errors during transformation execution.");
             }
+            sysConfigJobResitory.save(job);
             System.out.println("***********the end************");
         } catch (Exception e) {
             e.printStackTrace();
