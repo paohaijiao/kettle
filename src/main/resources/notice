@@ -1,0 +1,2 @@
+配置好thrift端口
+配置好spark-defaults.conf spark.sql.hive.metastore.version 1.2.1
