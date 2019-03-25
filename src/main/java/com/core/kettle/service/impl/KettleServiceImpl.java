@@ -6,6 +6,8 @@ import com.core.kettle.dao.SysConfigJobResitory;
 import com.core.kettle.dao.SysDbConnectionRespository;
 import com.core.kettle.service.KettleService;
 import org.pentaho.di.core.KettleEnvironment;
+import org.pentaho.di.core.exception.KettleException;
+import org.pentaho.di.core.util.EnvUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.pentaho.di.core.database.DatabaseMeta;
@@ -22,6 +24,8 @@ import org.pentaho.di.trans.steps.insertupdate.InsertUpdateMeta;
 import org.pentaho.di.trans.steps.tableinput.TableInputMeta;
 import org.springframework.util.StringUtils;
 
+import java.util.Date;
+
 
 @Service
 public class KettleServiceImpl implements KettleService {
@@ -29,22 +33,14 @@ public class KettleServiceImpl implements KettleService {
     private SysConfigJobResitory sysConfigJobResitory;
     @Autowired
     private SysDbConnectionRespository sysDbConnectionRespository;
-  //  public static String kettle_log = "t_lzfx_data_log";
+    public static String kettle_log = "t_lzfx_data_log";
 
 
     @Override
-    public boolean submitTaskToKettle(Integer id) {
+    public boolean submitTaskToKettle(TransMeta transMeta,SysConfigJob job,SysDbConnection dbfrom ,SysDbConnection dbTo) {
         try {
-            SysConfigJob job=sysConfigJobResitory.findById(id).get();
-            if(job.getStatus().equalsIgnoreCase("N")){
-              return true;
-            }
-            SysDbConnection dbfrom=sysDbConnectionRespository.findById(Integer.parseInt(job.getDbFrom())).get();
-            SysDbConnection dbTo=sysDbConnectionRespository.findById(Integer.parseInt(job.getDbTo())).get();
-            KettleEnvironment.init();
 
-            TransMeta transMeta = new TransMeta();
-            transMeta.setName(job.getJobName());
+
              //初始化数据库连接信息
             transMeta= getTransMeta(transMeta,dbfrom,dbTo);
             //registry是给每个步骤生成一个标识Id用
@@ -82,7 +78,9 @@ public class KettleServiceImpl implements KettleService {
             insertUpdateMeta.setDatabaseMeta(database_kettle);
             //设置操作的表
             insertUpdateMeta.setTableName(job.getTableTo());//+job.getTableTo()
-            insertUpdateMeta.setSchemaName("financial");
+            if(null!=job.getSchemaTo()){
+                insertUpdateMeta.setSchemaName(job.getSchemaTo());
+            }
             //设置用来查询的关键字
             insertUpdateMeta.setKeyStream2(new String[]{""});//一定要加上
             insertUpdateMeta.setKeyCondition(new String[]{"="});
@@ -111,16 +109,7 @@ public class KettleServiceImpl implements KettleService {
             //******************************************************************
             //添加hop把两个步骤关联起来
             transMeta.addTransHop(new TransHopMeta(tableInputMetaStep, insertUpdateStep));
-            Trans trans = new Trans(transMeta);
-            trans.execute(null); // You can pass arguments instead of null.
-            trans.waitUntilFinished();
-            job.setStatus("N");
-            if (trans.getErrors() > 0) {
-                job.setStatus("Y ");
-                throw new RuntimeException("There were errors during transformation execution.");
-            }
-            sysConfigJobResitory.save(job);
-            System.out.println("***********the end************");
+
         } catch (Exception e) {
             e.printStackTrace();
             return false;
@@ -128,6 +117,9 @@ public class KettleServiceImpl implements KettleService {
 
         return false;
     }
+
+
+
     public static TransMeta getTransMeta(    TransMeta transMeta,SysDbConnection dbfrom,SysDbConnection dbTo){
         DatabaseMeta databaseMeta= new DatabaseMeta();
         databaseMeta.setDBName(dbfrom.getDb());
@@ -165,10 +157,36 @@ public class KettleServiceImpl implements KettleService {
         //StepLogTable使用的数据库连接名（上面配置的变量名）。
         stepLogTable.setConnectionName("log");
         //设置Step日志的表名
-        //   stepLogTable.setTableName(kettle_log);
+        stepLogTable.setTableName(kettle_log);
         //设置TransMeta的StepLogTable
         transMeta.setStepLogTable(stepLogTable);
         return transMeta;
+    }
+    @Override
+    public boolean submitTaskToKettleByFile(String filename)throws Exception {
+        try {
+           //StepLoader.init();
+            KettleEnvironment.init();
+            //EnvUtil.environmentInit();
+            TransMeta transMeta = new TransMeta(filename);
+            Trans trans = new Trans(transMeta);
+
+            trans.execute(null); // You can pass arguments instead of null.
+            trans.waitUntilFinished();
+            if ( trans.getErrors() > 0 )
+            {
+                throw new RuntimeException( "There were errors during transformation execution." );
+            }
+        }
+        catch ( KettleException e ) {
+            System.out.println(e);
+        }
+        return false;
+    }
+
+    public static void main(String[] args) throws Exception{
+        KettleServiceImpl impl=new KettleServiceImpl();
+        impl.submitTaskToKettleByFile("C:\\Users\\acer\\Desktop\\kettle.ktr");
     }
 
 }

@@ -4,4 +4,5 @@ import com.core.kettle.bean.SysConfigJob;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface SysConfigJobResitory extends JpaRepository<SysConfigJob,Integer> {
+    SysConfigJob findByIdAndStatus(Integer id,String status);
 }
