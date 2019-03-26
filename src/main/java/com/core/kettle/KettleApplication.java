@@ -11,6 +11,7 @@ import org.springframework.context.annotation.ComponentScan;
 public class KettleApplication {
 
 	public static void main(String[] args) {
+
 		SpringApplication.run(KettleApplication.class, args);
 	}
 

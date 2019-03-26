@@ -57,7 +57,8 @@ public class KettleApi {
         return "数据库同步成功了";
     }
     @GetMapping("/initByFile")
-    public String runTransformation(String filename) {
+    public String runTransformation(String filename)throws Exception {
+        api.submitTaskToKettleByFile(filename);
         return "执行成功了";
     }
 
