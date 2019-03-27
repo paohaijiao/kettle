@@ -6,13 +6,22 @@ import com.core.kettle.dao.SysConfigJobResitory;
 import com.core.kettle.dao.SysDbConnectionRespository;
 import com.core.kettle.service.KettleService;
 import org.pentaho.di.core.KettleEnvironment;
+import org.pentaho.di.core.RowMetaAndData;
+import org.pentaho.di.core.RowSet;
+import org.pentaho.di.core.exception.KettleStepException;
+import org.pentaho.di.core.row.RowMetaInterface;
 import org.pentaho.di.trans.Trans;
 import org.pentaho.di.trans.TransMeta;
+import org.pentaho.di.trans.step.RowListener;
+import org.pentaho.di.trans.step.StepInterface;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
+import java.util.List;
 
 @RestController
 public class KettleApi {
@@ -25,7 +34,7 @@ public class KettleApi {
     @GetMapping("/init")
     String init()throws Exception{
         KettleEnvironment.init();
-        SysConfigJob job=sysConfigJobResitory.findByIdAndStatus(1,"Y");
+        SysConfigJob job=sysConfigJobResitory.findByIdAndStatus(201,"Y");
         if(job.getStatus().equalsIgnoreCase("N")){
             return "已经执行过了";
         }
@@ -37,16 +46,16 @@ public class KettleApi {
             try{
                 api.submitTaskToKettle(transMeta,job,dbfrom,dbTo);
                 Trans trans = new Trans(transMeta);
-                trans.execute(null);
+                trans.prepareExecution(null);
+
+                trans.startThreads();
                 trans.waitUntilFinished();
-                job.setDateUpdate(new Date());
-                job.setStatus("N");
-                if (trans.getErrors() > 0) {
-                    job.setStatus("Y ");
-                    throw new RuntimeException("数据库同步失败");
+
+                if(trans.getErrors() > 0) {
+                    System.out.println(">>>>>>>>>> ERROR");
+                }else {
+                    System.out.println(">>>>>>>>>> Row size ");
                 }
-                sysConfigJobResitory.save(job);
-                System.out.println("***********the end************");
             }catch (Exception e){
                 System.out.println("出错了"+e);
             }
