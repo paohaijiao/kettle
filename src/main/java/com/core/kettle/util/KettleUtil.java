@@ -5,6 +5,10 @@ import org.pentaho.di.core.row.ValueMetaInterface;
 import org.pentaho.di.trans.TransMeta;
 import org.pentaho.di.trans.steps.textfileoutput.TextFileField;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+
 public class KettleUtil {
    public static void addDatabase(TransMeta transMeta){
        DatabaseMeta databaseMeta= new DatabaseMeta();
@@ -17,43 +21,65 @@ public class KettleUtil {
        databaseMeta.setDatabaseType("PostgreSQL");
        transMeta.addDatabase(databaseMeta);
    }
-   public static TextFileField[] getFixedField(){
-       TextFileField f1=new TextFileField();
-       f1.setTrimType(ValueMetaInterface.TRIM_TYPE_BOTH);
-       f1.setFormat("#");
-       f1.setName("id");
-       f1.setType(ValueMetaInterface.TYPE_STRING);
-       TextFileField f2=new TextFileField();
-       f2.setTrimType(ValueMetaInterface.TRIM_TYPE_BOTH);
-       f2.setName("ent_name");
-       f2.setFormat("#");
-       f2.setNullString("默认值");
-       f2.setType(ValueMetaInterface.TYPE_STRING);
-       TextFileField f3=new TextFileField();
-       f3.setTrimType(ValueMetaInterface.TRIM_TYPE_BOTH);
-       f3.setFormat("#");
-       f3.setName("grey_type");
-       f3.setType(ValueMetaInterface.TYPE_STRING);
-       TextFileField f4=new TextFileField();
-       f4.setTrimType(ValueMetaInterface.TRIM_TYPE_BOTH);
-       f4.setFormat("#");
-       f4.setName("describe");
-       f4.setType(ValueMetaInterface.TYPE_STRING);
-       TextFileField f5=new TextFileField();
-       f5.setTrimType(ValueMetaInterface.TRIM_TYPE_BOTH);
-       f5.setFormat("#");
-       f5.setName("create_by");
-       f5.setType(ValueMetaInterface.TYPE_STRING);
-       TextFileField f6=new TextFileField();
-       f6.setTrimType(ValueMetaInterface.TRIM_TYPE_BOTH);
-       f6.setFormat("yyyy/MM/dd HH:mm:ss");
-       f6.setType(ValueMetaInterface.TYPE_DATE);
-       f6.setName("date_created");
-       TextFileField f7=new TextFileField();
-       f7.setTrimType(ValueMetaInterface.TRIM_TYPE_BOTH);
-       f7.setFormat("#");
-       f7.setType(ValueMetaInterface.TYPE_STRING);
-       f7.setName("grey_flag");
-       return new TextFileField[]{f1,f2,f3,f4,f5,f6,f7};
+
+    public static TextFileField[] getFixedField(String fieldFormat) throws Exception {
+        TextFileField[] strings = new TextFileField[fieldFormat.split(";").length];
+        List<TextFileField> list = new ArrayList<TextFileField>();
+        if (null == fieldFormat) {
+            throw new Exception("fieldFormat不能为空");
+        } else {
+            String[] fields = fieldFormat.split(";");
+            Arrays.stream(fields).forEach(e -> {
+                String[] field = e.split(",");
+                TextFileField f1 = new TextFileField();
+                f1.setName(field[0]);
+                f1.setTrimType(ValueMetaInterface.TRIM_TYPE_BOTH);
+                f1.setFormat(field[1]);
+                f1.setType(getInstance(field[2]));
+                list.add(f1);
+            });
+        }
+        return list.toArray(strings);
    }
+
+    public static int getInstance(String type) {
+        int code = 0;
+        switch (type) {
+            case "number":
+                code = ValueMetaInterface.TYPE_NUMBER;
+                break;
+            case "string":
+                code = ValueMetaInterface.TYPE_STRING;
+                break;
+            case "date":
+                code = ValueMetaInterface.TYPE_DATE;
+                break;
+            case "boolean":
+                code = ValueMetaInterface.TYPE_BOOLEAN;
+                break;
+            case "integer":
+                code = ValueMetaInterface.TYPE_INTEGER;
+                break;
+            case "bignumber":
+                code = ValueMetaInterface.TYPE_BIGNUMBER;
+                break;
+            case "serializable":
+                code = ValueMetaInterface.TYPE_SERIALIZABLE;
+                break;
+            case "binary":
+                code = ValueMetaInterface.TYPE_BINARY;
+                break;
+            case "timestamp":
+                code = ValueMetaInterface.TYPE_TIMESTAMP;
+                break;
+            case "inet":
+                code = ValueMetaInterface.TYPE_INET;
+                break;
+            default:
+                code = ValueMetaInterface.TYPE_NONE;
+        }
+        return code;
+
+    }
+
 }
