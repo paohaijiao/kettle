@@ -9,6 +9,7 @@ import org.pentaho.di.trans.step.StepMeta;
 import org.pentaho.di.trans.steps.constant.ConstantMeta;
 import org.pentaho.di.trans.steps.stepmeta.StepMetastructureMeta;
 import org.pentaho.di.trans.steps.tableinput.TableInputMeta;
+import org.pentaho.di.trans.steps.tableoutput.TableOutputMeta;
 import org.pentaho.di.trans.steps.textfileoutput.TextFileOutputMeta;
 
 
@@ -29,16 +30,14 @@ public class TransformTransMetaUtil<main> {
         transMeta.addTransHop(hop);
         return dummyStep;
     }
-
-    /**
-     *    获取数据库字段
+    /**    获取数据库字段
+     *
      * @param transMeta
      * @param databaseMeta
      * @param table
      * @param schema
-     * @return
      */
-    public static  String[] getTableMeta(TransMeta transMeta,DatabaseMeta databaseMeta,String table ,String schema){
+    public static  void getTableMeta(TransMeta transMeta,DatabaseMeta databaseMeta,String table ,String schema){
         TableInputMeta tableInput=new TableInputMeta();
         tableInput.setDefault();
         tableInput.setDatabaseMeta(databaseMeta);
@@ -51,24 +50,24 @@ public class TransformTransMetaUtil<main> {
         transMeta.addStep(stepMetastructureMetaStep);
         TransHopMeta structhop = new TransHopMeta(tableInputMetaStep, stepMetastructureMetaStep);
         transMeta.addTransHop(structhop);
+        TableOutputMeta outputMeta=new TableOutputMeta();
+        outputMeta.setDefault();
+        outputMeta.setSpecifyFields(true);
+        outputMeta.setDatabaseMeta(databaseMeta);
+        outputMeta.setFieldStream(new String[]{"位置","字段名","注释","类型","长度","精度","原"});
+        outputMeta.setFieldDatabase(new   String[]{"index","column_name","column_comment","column_type","length","precise","table_name"});
+        outputMeta.setTableName(table);
+        outputMeta.setSchemaName(schema);
+        StepMeta outputStep = new StepMeta("out",outputMeta);
+        transMeta.addStep(outputStep);
 
-        TextFileOutputMeta outMeta=new TextFileOutputMeta();
-        outMeta.setDefault();
-        outMeta.setHeaderEnabled(false);
-      //  outMeta.setOutputFields(KettleUtil.getFixedField());
-        outMeta.setFileName("C:\\Users\\acer\\Desktop\\data\\sys_db_connection1.csv");
-        StepMeta dummyStep = new StepMeta("out",outMeta);
-        transMeta.addStep(dummyStep);
-
-        TransHopMeta hop = new TransHopMeta(stepMetastructureMetaStep, dummyStep);
+        TransHopMeta hop = new TransHopMeta(stepMetastructureMetaStep, outputStep);
         transMeta.addTransHop(hop);
-        return new String[]{"id"};
     }
 
     public static void main(String[] args) {
         try{
             KettleEnvironment.init();
-
             TransMeta transMeta = new TransMeta();
             transMeta.setName("获取数据库表字段");
             DatabaseMeta databaseMeta= new DatabaseMeta();
@@ -79,7 +78,7 @@ public class TransformTransMetaUtil<main> {
             databaseMeta.setPassword("123456-250");
             databaseMeta.setName("dev_db_sync1");
             databaseMeta.setDatabaseType("PostgreSQL");
-           getTableMeta(transMeta,databaseMeta,"financial","itf_grey_list");
+           getTableMeta(transMeta,databaseMeta,"sys_meta_mapping","financial");
 
             Trans trans = new Trans(transMeta);
             trans.prepareExecution(null);
