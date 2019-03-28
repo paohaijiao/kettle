@@ -1,25 +1,16 @@
 package com.core.kettle.convert;
 
-import com.core.kettle.bean.SysConfigJob;
-import com.core.kettle.service.KettleService;
-import com.core.kettle.util.KettleUtil;
-import javassist.bytecode.stackmap.BasicBlock;
 import org.pentaho.di.core.KettleEnvironment;
 import org.pentaho.di.core.database.DatabaseMeta;
-import org.pentaho.di.core.row.RowMetaInterface;
 import org.pentaho.di.trans.Trans;
 import org.pentaho.di.trans.TransHopMeta;
 import org.pentaho.di.trans.TransMeta;
 import org.pentaho.di.trans.step.StepMeta;
-import org.pentaho.di.trans.steps.calculator.CalculatorMeta;
-import org.pentaho.di.trans.steps.calculator.CalculatorMetaFunction;
 import org.pentaho.di.trans.steps.constant.ConstantMeta;
-import org.pentaho.di.trans.steps.databaselookup.DatabaseLookupMeta;
 import org.pentaho.di.trans.steps.stepmeta.StepMetastructureMeta;
 import org.pentaho.di.trans.steps.tableinput.TableInputMeta;
 import org.pentaho.di.trans.steps.textfileoutput.TextFileOutputMeta;
 
-import java.util.Arrays;
 
 /**
  *  此类专门处理字段的转换
