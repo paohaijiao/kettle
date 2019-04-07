@@ -3,19 +3,21 @@ package com.core.kettle.util;
 import com.core.kettle.model.KRepository;
 import com.core.kettle.toolkit.Constant;
 import com.core.kettle.toolkit.RepositoryTree;
+import org.apache.commons.lang.StringUtils;
 import org.pentaho.di.core.KettleEnvironment;
+import org.pentaho.di.core.ProgressNullMonitorListener;
 import org.pentaho.di.core.database.DatabaseMeta;
 import org.pentaho.di.core.exception.KettleException;
+import org.pentaho.di.core.logging.LogLevel;
+import org.pentaho.di.job.Job;
+import org.pentaho.di.job.JobMeta;
 import org.pentaho.di.repository.RepositoryDirectory;
 import org.pentaho.di.repository.RepositoryDirectoryInterface;
 import org.pentaho.di.repository.RepositoryElementMetaInterface;
 import org.pentaho.di.repository.kdr.KettleDatabaseRepository;
 import org.pentaho.di.repository.kdr.KettleDatabaseRepositoryMeta;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class RepositoryUtil {
 
@@ -44,10 +46,23 @@ public class RepositoryUtil {
 
         List<RepositoryTree> allRepositoryTreeList = new ArrayList<RepositoryTree>();
 
-        List<RepositoryTree> repositoryTreeList = getAllDirectoryTreeList(kettleDatabaseRepository, "/", allRepositoryTreeList);
-
-        for (RepositoryTree repositoryTree : repositoryTreeList) {
-            System.out.println(repositoryTree);
+        //List<RepositoryTree> repositoryTreeList = getAllDirectoryTreeList(kettleDatabaseRepository, "/", allRepositoryTreeList);
+        RepositoryDirectoryInterface directory = kettleDatabaseRepository.findDirectory("/");
+        JobMeta jobMeta = kettleDatabaseRepository.loadJob("job1", directory, new ProgressNullMonitorListener(),
+                null);
+        Job job = new Job(kettleDatabaseRepository, jobMeta);
+        job.setDaemon(true);
+        job.setLogLevel(LogLevel.DEBUG);
+        String exception = null;
+        Integer recordStatus = 1;
+//            Date jobStartDate = null;
+        Date jobStopDate = null;
+        String logText = null;
+        try {
+            job.run();
+            job.waitUntilFinished();
+        } catch (Exception e) {
+            System.out.print(e);
         }
     }
 
