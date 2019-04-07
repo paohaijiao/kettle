@@ -126,7 +126,7 @@
           params: obj,
           url: '/user/login'
          }).then(function successCallback(response) {
-            showMessage(response.data.message)
+           openNewPage('index.html')
         }, function errorCallback(response) {
           showMessage(response.message)
      });
