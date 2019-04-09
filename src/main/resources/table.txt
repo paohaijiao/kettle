@@ -35,7 +35,7 @@ create table sys_db_connection(
    PRIMARY key(id)
 );
 
-create table user(
+CREATE TABLE IF NOT EXISTS   k_user(
 user_id int  auto_increment,
 user_name  varchar(200) not null,
 email varchar(200) not null,
@@ -47,4 +47,73 @@ update_date timestamp   not null ,
 update_by  varchar(20) not null default 'sys',
 effectve_flag varchar(2) not null default 'y',
 primary key(user_id)
-);
+) ENGINE=INNODB DEFAULT CHARSET=utf8 COMMENT '用户表';
+
+CREATE TABLE IF NOT EXISTS k_variable
+(
+id INT NOT NULL COMMENT 'id' PRIMARY KEY,
+step_name VARCHAR(200)  NOT NULL COMMENT '步骤名称',
+ds VARCHAR(200)  NOT NULL COMMENT '数据库连接id',
+v_flag VARCHAR(200)  NOT NULL COMMENT '是否允许变量替换',
+v_list VARCHAR(200)  NOT NULL COMMENT '变量list,以逗号分隔',
+create_date timestamp  not null default current_timestamp,
+create_by  varchar(20) not null default '',
+update_date timestamp   not null ,
+update_by  varchar(20) not null default 'sys',
+effectve_flag varchar(2) not null default 'y'
+) ENGINE=INNODB DEFAULT CHARSET=utf8 COMMENT '表输入配置表';
+
+CREATE TABLE IF NOT EXISTS k_insertOrUpdate
+(
+id INT NOT NULL COMMENT 'id' PRIMARY KEY,
+step_name VARCHAR(200)  NOT NULL COMMENT '步骤名称',
+ds VARCHAR(200)  NOT NULL COMMENT '数据库连接id',
+schema_name VARCHAR(200)  NOT NULL COMMENT '模式',
+table_name VARCHAR(200)  NOT NULL COMMENT '表名',
+row_commit VARCHAR(200)  NOT NULL COMMENT 'commit提交条数',
+not_allow_update VARCHAR(200)  NOT NULL COMMENT '是否允许不更新',
+fields_list VARCHAR(2000)  NOT NULL COMMENT '比较字段',
+fields_comp VARCHAR(2000)  NOT NULL COMMENT '比较运算符',
+fields_stream VARCHAR(2000)  NOT NULL COMMENT '比较流',
+fields_update VARCHAR(2000)  NOT NULL COMMENT '比较运算符',
+stream_update VARCHAR(2000)  NOT NULL COMMENT '比较流',
+flag_update VARCHAR(2000)  NOT NULL COMMENT '修改标识',
+create_date timestamp  not null default current_timestamp,
+create_by  varchar(20) not null default '',
+update_date timestamp   not null ,
+update_by  varchar(20) not null default 'sys',
+effectve_flag varchar(2) not null default 'y'
+) ENGINE=INNODB DEFAULT CHARSET=utf8 COMMENT '增加修改组件配置表';
+
+CREATE TABLE IF NOT EXISTS k_delete
+(
+id INT NOT NULL COMMENT 'id' PRIMARY KEY,
+step_name VARCHAR(200)  NOT NULL COMMENT '步骤名称',
+ds VARCHAR(200)  NOT NULL COMMENT '数据库连接id',
+schema_name VARCHAR(200)  NOT NULL COMMENT '模式',
+table_name VARCHAR(200)  NOT NULL COMMENT '表名',
+row_commit VARCHAR(200)  NOT NULL COMMENT 'commit提交条数',
+not_allow_update VARCHAR(200)  NOT NULL COMMENT '是否允许不更新',
+fields_list VARCHAR(2000)  NOT NULL COMMENT '比较字段',
+fields_comp VARCHAR(2000)  NOT NULL COMMENT '比较运算符',
+fields_stream VARCHAR(2000)  NOT NULL COMMENT '比较流',
+create_date timestamp  not null default current_timestamp,
+create_by  varchar(20) not null default '',
+update_date timestamp   not null ,
+update_by  varchar(20) not null default 'sys',
+effectve_flag varchar(2) not null default 'y'
+) ENGINE=INNODB DEFAULT CHARSET=utf8 COMMENT '增加删除组件配置表';
+
+CREATE TABLE IF NOT EXISTS k_trans
+(
+id INT NOT NULL COMMENT 'id' PRIMARY KEY,
+source_comp VARCHAR(200)  NOT NULL COMMENT '来源步骤',
+dest_comp VARCHAR(200)  NOT NULL COMMENT '目的步骤',
+log VARCHAR(200)  NOT NULL COMMENT '是否记录日志',
+configure_out VARCHAR(200)  NOT NULL COMMENT '配置',
+create_date timestamp  not null default current_timestamp,
+create_by  varchar(20) not null default '',
+update_date timestamp   not null ,
+update_by  varchar(20) not null default 'sys',
+effectve_flag varchar(2) not null default 'y'
+) ENGINE=INNODB DEFAULT CHARSET=utf8 COMMENT '日志配置表';
